@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Jim's Coffee Locator</title>
+
+  <style>
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Jim's Coffee Locator</h1>
+  <div id="map"></div>
+
+  <script>
+    var map;
+    var infoWindow;
+
+    var request;
+    var service;
+    var markers = [];
+
+    function initMap() {
+
+      var center = new google.maps.LatLng(39.890454, -86.031845);
+      //map options
+      var options = {
+        zoom: 12,
+        center: center
+      }
+      map = new google.maps.Map(document.getElementById('map'), options);
+
+      request = {
+        location: center,
+        radius: 8047,
+        types: ['cafe']
+      };
+      infoWindow = new google.maps.InfoWindow();
+
+      service = new google.maps.places.PlacesService(map);
+
+      service.nearbySearch(request, callback);
+
+      google.maps.event.addListener(map, 'rightclick', function (event) {
+        map.setCenter(event.latLng);
+        clearResults(markers);
+        var request = {
+          location: event.latLng,
+          radius: 8047,
+          types: ['cafe']
+        };
+        service.nearbySearch(request, callback);
+
+      });
+
+    }//end initMap
+
+    function callback(results, status) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        for (var i = 0; i < results.length; i++) {
+          markers.push(addMarker(results[i]));
+        }
+      }
+    }
+
+    //add marker function
+    function addMarker(place) {
+      var placeLoc = place.geometry.location;
+      var marker = new google.maps.Marker({
+        position: place.geometry.location,
+        animation: google.maps.Animation.DROP,
+        map: map,
+        icon: place.icon
+      });
+
+      google.maps.event.addListener(marker, 'click', function () {
+        infoWindow.setContent('<div><strong>' + place.name + '</strong><br>' +
+          '<p>' + 'open now: ' + place.opening_hours.open_now + '</p>' +
+          '<p>' + 'rating: ' + place.rating + ' of 5' + '</p>' +
+          '</div>');
+        infoWindow.open(map, this);
+      });
+
+      console.log(place);
+      return marker;
+    }
+
+    function clearResults(markers) {
+      for (var m in markers) {
+        markers[m].setMap(null);
+      }
+      markers = [];
+    }
+
+  </script>
+
+  <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyCKyzkwzbkB3tPezzkXFXZB7wIDYZBR2_k&callback=initMap"
+    async defer></script>
+  <!-- fyi: API key restricted to just my IP address as source -->
+</body>
+
+</html>
