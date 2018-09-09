@@ -66,19 +66,26 @@
       if (status == google.maps.places.PlacesServiceStatus.OK) {
         for (var i = 0; i < results.length; i++) {
           markers.push(addMarker(results[i]));
+
         }
       }
     }
 
+
     //add marker function
     function addMarker(place) {
       var placeLoc = place.geometry.location;
+      var icon = {
+        url: 'img/cafeicon1.png',
+        scaledSize: new google.maps.Size(45, 60)
+      };
       var marker = new google.maps.Marker({
         position: place.geometry.location,
         animation: google.maps.Animation.DROP,
         map: map,
-        icon: place.icon
+        icon: icon
       });
+
 
       google.maps.event.addListener(marker, 'click', function () {
         infoWindow.setContent('<div><strong>' + place.name + '</strong><br>' +
